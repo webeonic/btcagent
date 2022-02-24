@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	// 解析命令行参数
+	// Resolving command line parameters
 	configFilePath := flag.String("c", "agent_conf.json", "Path of config file")
 	logDir := flag.String("l", "", "Log directory")
 	flag.Parse()
@@ -24,10 +24,10 @@ func main() {
 		flag.Lookup("log_dir").Value.Set(*logDir)
 	}
 
-	// 增大文件描述符上限
+	// Increase file descriptor
 	IncreaseFDLimit()
 
-	// 读取配置文件
+	// Read configuration file
 	config := NewConfig()
 	err := config.LoadFromFile(*configFilePath)
 	if err != nil {
@@ -36,13 +36,13 @@ func main() {
 	}
 	config.Init()
 
-	// 打印加载的配置文件（用于调试）
+	// Print loaded profile (for debugging)
 	if glog.V(3) {
 		configBytes, _ := json.Marshal(config)
 		glog.Info("config: ", string(configBytes))
 	}
 
-	// 启动 HTTP 调试服务
+	// Start HTTP debugging service
 	if config.HTTPDebug.Enable {
 		glog.Info("HTTP debug enabled: ", config.HTTPDebug.Listen)
 		go func() {
@@ -53,10 +53,10 @@ func main() {
 		}()
 	}
 
-	// 会话管理器
+	// Session manager
 	manager := NewSessionManager(config)
 
-	// 退出信号
+	// Exit signal
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
@@ -65,6 +65,6 @@ func main() {
 		manager.Stop()
 	}()
 
-	// 运行代理
+	// Run agency
 	manager.Run()
 }
