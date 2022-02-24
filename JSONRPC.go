@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 )
 
-// JSONRPCRequest JSON RPC 请求的数据结构
+// JSONRPCRequest JSON RPC Request data structure
 type JSONRPCRequest struct {
 	ID     interface{}   `json:"id"`
 	Method string        `json:"method"`

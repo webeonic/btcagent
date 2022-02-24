@@ -45,11 +45,11 @@ const SessionManagerChannelCache uint = 64
 const UpSessionDialTimeoutSeconds Seconds = 15
 const UpSessionReadTimeoutSeconds Seconds = 60
 
-const UpSessionUserAgent = "btccom-agent/2.0.0-mu"
+const UpSessionUserAgent = ""
 const DefaultWorkerName = "__default__"
 const DefaultIpWorkerNameFormat = "{1}x{2}x{3}x{4}"
 
-// UpSessionNumPerSubAccount 每个子账户的矿池连接数量
+// UpSessionNumPerSubAccount Number of mine connections for each child account
 const UpSessionNumPerSubAccount uint8 = 5
 
 const (

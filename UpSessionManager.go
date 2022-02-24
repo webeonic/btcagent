@@ -108,7 +108,7 @@ func (manager *UpSessionManager) addDownSession(e EventAddDownSession) {
 		return
 	}
 
-	// 未启用 AlwaysKeepDownconn，直接断开连接，防止矿机认为 BTCAgent 连接活跃
+	// AlwayskeepdownConn is not enabled, disconnect directly to prevent the mine from thinking BTCAgent connection is active
 	e.Session.SendEvent(EventPoolNotReady{})
 }
 
