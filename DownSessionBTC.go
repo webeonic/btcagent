@@ -11,30 +11,30 @@ import (
 )
 
 type DownSessionBTC struct {
-	id string // 打印日志用的连接标识符
+	id string // Connection identifier for printing logs
 
-	manager   *SessionManager // 会话管理器
-	upSession EventInterface  // 所属的服务器会话
+	manager   *SessionManager // Session manager
+	upSession EventInterface  // Server session
 
-	sessionID       uint16        // 会话ID
-	clientConn      net.Conn      // 到矿机的TCP连接
-	clientReader    *bufio.Reader // 读取矿机发送的内容
-	readLoopRunning bool          // TCP读循环是否在运行
-	stat            AuthorizeStat // 认证状态
+	sessionID       uint16        // Session ID
+	clientConn      net.Conn      // TCP connection to the mine machine
+	clientReader    *bufio.Reader // Read the content sent by the mine machine
+	readLoopRunning bool          // Is the TCP read loop running
+	stat            AuthorizeStat // Certification status
 
-	clientAgent    string // 挖矿软件名称
-	fullName       string // 完整的矿工名
-	subAccountName string // 子账户名部分
-	workerName     string // 矿机名部分
-	versionMask    uint32 // 比特币版本掩码(用于AsicBoost)
+	clientAgent    string // Mining software name
+	fullName       string // Complete miner name
+	subAccountName string // Sub-account name
+	workerName     string // Mining machine name
+	versionMask    uint32 // Bitcoin version mask(Asicboost)
 
-	eventLoopRunning bool             // 消息循环是否在运行
-	eventChannel     chan interface{} // 消息通道
+	eventLoopRunning bool             // Whether the message loop is running
+	eventChannel     chan interface{} // Message channel
 
-	versionRollingShareCounter uint64 // ASICBoost share 提交数量
+	versionRollingShareCounter uint64 // ASICBoost share Quantity
 }
 
-// NewDownSessionBTC 创建一个新的 Stratum 会话
+// NewDownSessionBTC Create a new STRATUM session
 func NewDownSessionBTC(manager *SessionManager, clientConn net.Conn, sessionID uint16) (down *DownSessionBTC) {
 	down = new(DownSessionBTC)
 	down.manager = manager
@@ -116,7 +116,7 @@ func (down *DownSessionBTC) stratumHandleRequest(request *JSONRPCLineBTC, reques
 		result, err = down.parseAuthorizeRequest(request)
 		if err == nil {
 			down.stat = StatAuthorized
-			// 让 Init() 函数返回
+			//Let the init () function returns
 			down.eventLoopRunning = false
 
 			down.id += fmt.Sprintf("<%s> ", down.fullName)
@@ -261,7 +261,7 @@ func (down *DownSessionBTC) parseMiningSubmit(request *JSONRPCLineBTC) (result i
 
 	go down.upSession.SendEvent(EventSubmitShareBTC{request.ID, &msg})
 
-	// 如果 AsicBoost 丢失，就发送重连请求
+	// If AsicBoost is lost, send a reconnection request
 	if down.manager.config.DisconnectWhenLostAsicboost {
 		if hasVersionMask {
 			down.versionRollingShareCounter++
@@ -312,10 +312,10 @@ func (down *DownSessionBTC) parseAuthorizeRequest(request *JSONRPCLineBTC) (resu
 		return
 	}
 
-	// 矿工名
+	// Miner name
 	down.fullName = FilterWorkerName(fullWorkerName)
 
-	// 截取“.”之前的做为子账户名，“.”及之后的做矿机名
+	// Intercepted "." Before the child account name, "." And after the mine machine name
 	pos := strings.IndexByte(down.fullName, '.')
 	if pos >= 0 {
 		down.subAccountName = down.fullName[:pos]
@@ -380,15 +380,15 @@ func (down *DownSessionBTC) parseConfigureRequest(request *JSONRPCLineBTC) (resu
 	}
 
 	if down.versionMask != 0 {
-		// 这里响应的是虚假的版本掩码。在连接服务器后将通过 mining.set_version_mask
-		// 更新为真实的版本掩码。
+		// The response here is a false version mask.After connecting the server mining.set_version_mask
+		// Update to a real version mask.
 		result = JSONRPCObj{
 			"version-rolling":      true,
 			"version-rolling.mask": down.versionMaskStr()}
 		return
 	}
 
-	// 未知配置内容，不响应
+	// Unknown configuration content, no response
 	return
 }
 
@@ -430,7 +430,7 @@ func (down *DownSessionBTC) recvJSONRPC(e EventRecvJSONRPCBTC) {
 	// stat will be changed in stratumHandleRequest
 	result, stratumErr := down.stratumHandleRequest(e.RPCData, e.JSONBytes)
 
-	// 两个均为空说明没有想要返回的响应
+	// Both are empty, there is no response you want to return.
 	if result != nil || stratumErr != nil {
 		var response JSONRPCResponse
 		response.ID = e.RPCData.ID

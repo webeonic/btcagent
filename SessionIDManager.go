@@ -18,7 +18,7 @@ type SessionIDManager struct {
 	maxSessionId uint16 // sessionID可以达到的最大数值
 }
 
-// NewSessionIDManager 创建一个会话ID管理器实例
+// NewSessionIDManager Create a session ID manager instance
 func NewSessionIDManager(maxSessionId uint16) (manager *SessionIDManager, err error) {
 	manager = new(SessionIDManager)
 

@@ -8,12 +8,12 @@ import (
 )
 
 type SessionManager struct {
-	config            *Config                      // 配置
-	tcpListener       net.Listener                 // TCP监听对象
-	sessionIDManager  *SessionIDManager            // 会话ID管理器
-	upSessionManagers map[string]*UpSessionManager // map[子账户名]矿池会话管理器
-	exitChannel       chan bool                    // 退出信号
-	eventChannel      chan interface{}             // 事件循环
+	config            *Config                      // Configure
+	tcpListener       net.Listener                 // TCP listening object
+	sessionIDManager  *SessionIDManager            // Session ID Manager
+	upSessionManagers map[string]*UpSessionManager // MAP [Sub Account Name] Mining Session Manager
+	exitChannel       chan bool                    //Exit signal
+	eventChannel      chan interface{}             // Event cycle
 }
 
 func NewSessionManager(config *Config) (manager *SessionManager) {
@@ -28,17 +28,17 @@ func NewSessionManager(config *Config) (manager *SessionManager) {
 func (manager *SessionManager) Run() {
 	var err error
 
-	// 初始化会话管理器
+	// Initialization Session Manager
 	manager.sessionIDManager, err = NewSessionIDManager(0xfffe)
 	if err != nil {
 		glog.Fatal("NewSessionIDManager failed: ", err)
 		return
 	}
 
-	// 启动事件循环
+	// Start event loop
 	go manager.handleEvent()
 
-	// TCP监听
+	// TCP listening
 	listenAddr := fmt.Sprintf("%s:%d", manager.config.AgentListenIp, manager.config.AgentListenPort)
 	glog.Info("startup is successful, listening: ", listenAddr)
 	manager.tcpListener, err = net.Listen("tcp", listenAddr)
@@ -47,7 +47,7 @@ func (manager *SessionManager) Run() {
 		return
 	}
 
-	// 为单用户模式连接矿池
+	// Connect the mine for single user mode
 	if !manager.config.MultiUserMode {
 		manager.createUpSessionManager("")
 	}
@@ -84,7 +84,7 @@ func (manager *SessionManager) exit() {
 }
 
 func (manager *SessionManager) RunDownSession(conn net.Conn) {
-	// 产生 sessionID （Extranonce1）
+	// produce sessionID （Extranonce1）
 	sessionID, err := manager.sessionIDManager.AllocSessionID()
 
 	if err != nil {
@@ -96,7 +96,7 @@ func (manager *SessionManager) RunDownSession(conn net.Conn) {
 	down := manager.config.sessionFactory.NewDownSession(manager, conn, sessionID)
 	down.Init()
 	if down.Stat() != StatAuthorized {
-		// 认证失败，放弃连接
+		// Certification failed, abandon connection
 		return
 	}
 
