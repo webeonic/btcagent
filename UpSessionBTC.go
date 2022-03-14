@@ -427,7 +427,7 @@ func (up *UpSessionBTC) handleSubScribeResponse(rpcData *JSONRPCLineBTC, jsonByt
 		return
 	}
 	up.extraNonce2Size = int(extraNonce2SizeFloat)
-	if up.extraNonce2Size != 8 {
+	if up.extraNonce2Size != 4 {
 		glog.Error(up.id, "BTCAgent is not compatible with this server, extra nonce 2 should be 8 bytes but only ", up.extraNonce2Size, " bytes")
 		up.close()
 		return
