@@ -68,11 +68,11 @@ func (manager *SessionManager) Run() {
 }
 
 func (manager *SessionManager) Stop() {
-	// 退出TCP监听
+	// Exit TCP listening
 	manager.exitChannel <- true
 	manager.tcpListener.Close()
 
-	// 退出事件循环
+	// Exit the event cycle
 	manager.SendEvent(EventExit{})
 }
 

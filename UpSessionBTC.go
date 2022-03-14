@@ -16,7 +16,7 @@ import (
 )
 
 type UpSessionBTC struct {
-	id string // 打印日志用的连接标识符
+	id string // Connection identifier for printing logs
 
 	manager *UpSessionManager
 	config  *Config
@@ -48,7 +48,7 @@ type UpSessionBTC struct {
 	submitIDs   map[uint16]SubmitID
 	submitIndex uint16
 
-	// 用于统计断开连接的矿机数，并同步给 UpSessionManager
+	// Used for statistics to disconnect the number of miners, and synchronize to UpsessionManager
 	disconnectedMinerCounter int
 }
 

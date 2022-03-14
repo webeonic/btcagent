@@ -45,7 +45,9 @@ const SessionManagerChannelCache uint = 64
 const UpSessionDialTimeoutSeconds Seconds = 15
 const UpSessionReadTimeoutSeconds Seconds = 60
 
-const UpSessionUserAgent = "btccom-agent/2.0.0-mu"
+//btccom-agent/2.0.0-mu
+const UpSessionUserAgent = "bfgminer/4.4.0-32-gac4e9b3"
+
 const DefaultWorkerName = "__default__"
 const DefaultIpWorkerNameFormat = "{1}x{2}x{3}x{4}"
 
