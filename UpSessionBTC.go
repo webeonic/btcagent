@@ -813,8 +813,8 @@ func (up *UpSessionBTC) sendUpdateMinerNum() {
 }
 
 func (up *UpSessionBTC) outdatedUpSessionConnection(e EventUpSessionConnection) {
-	// up.connect() 方法有自己的事件循环来接收连接，
-	// 所以到达这里的连接都是多余的，可以直接关闭。
+	// up.Connect () method has its own event loop to receive connections.
+// So the connection to arrive here is extra, you can close directly.
 	if e.Conn != nil {
 		e.Conn.Close()
 	}

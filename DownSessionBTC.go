@@ -360,7 +360,7 @@ func (down *DownSessionBTC) parseAuthorizeRequest(request *JSONRPCLineBTC) (resu
 		}
 	}
 
-	// 获取矿机名成功
+	//Get successful mine machine name
 	result = true
 	err = nil
 	return
