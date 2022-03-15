@@ -192,12 +192,22 @@ func (down *DownSessionBTC) parseMiningSubmit(request *JSONRPCLineBTC) (result i
 	if IsFakeJobIDBTC(jobIDStr) {
 		msg.IsFakeJob = true
 	} else {
-		jobID, convErr := strconv.ParseUint(jobIDStr, 10, 8)
+		jobID := strings.Split(jobIDStr, "_")
+		jobID1, convErr := strconv.ParseUint(jobID[0], 10, 64)
 		if convErr != nil {
+			glog.Error(down.id, "Error param: ", request.Params, convErr)
 			err = StratumErrIllegalParams
 			return
 		}
-		msg.Base.JobID = uint8(jobID)
+		msg.Base.JobID1 = uint16(jobID1)
+
+		jobID2, convErr := strconv.ParseUint(jobID[1], 10, 64)
+		if convErr != nil {
+			glog.Error(down.id, "Error param: ", request.Params, convErr)
+			err = StratumErrIllegalParams
+			return
+		}
+		msg.Base.JobID2 = uint8(jobID2)
 	}
 
 	// [2] ExtraNonce2

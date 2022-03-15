@@ -85,7 +85,8 @@ func (msg *ExMessageUnregisterWorker) Serialize() []byte {
 
 type ExMessageSubmitShareBTC struct {
 	Base struct {
-		JobID       uint8
+		JobID1      uint16
+		JobID2		uint8
 		SessionID   uint16
 		ExtraNonce2 uint32
 		Nonce       uint32

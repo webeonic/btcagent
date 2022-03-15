@@ -11,6 +11,7 @@ import (
 	"net"
 	"strconv"
 	"time"
+	"strings"
 
 	"github.com/golang/glog"
 )
@@ -547,7 +548,7 @@ func (up *UpSessionBTC) readExMessage() {
 		return
 	}
 
-	size := message.Size - 4 // len 包括 header 的长度 4 字节，所以减 4
+	size := message.Size - 4 // Len includes the length of the Header 4 bytes, so
 	if size > 0 {
 		message.Body = make([]byte, size)
 		_, err = io.ReadFull(up.serverReader, message.Body)
@@ -575,6 +576,7 @@ func (up *UpSessionBTC) readLine() {
 		glog.Info(up.id, "readLine: ", string(jsonBytes))
 	}
 
+	jsonBytes = []byte(strings.Replace(string(jsonBytes),"auth","\"auth\"",1))
 	rpcData, err := NewJSONRPCLineBTC(jsonBytes)
 
 	// ignore the json decode error
