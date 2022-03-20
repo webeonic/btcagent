@@ -19,8 +19,7 @@ type FakeUpSessionInfo struct {
 }
 
 type UpSessionManager struct {
-	id string // 打印日志用的连接标识符
-
+	id string // Connection identifier for printing logs
 	subAccount string
 	config     *Config
 	parent     *SessionManager
@@ -87,7 +86,7 @@ func (manager *UpSessionManager) addDownSession(e EventAddDownSession) {
 
 	var selected *UpSessionInfo
 
-	// 寻找连接数最少的服务器
+	// Looking for a server for the minimum number of connections
 	for i := range manager.upSessions {
 		info := &manager.upSessions[i]
 		if info.ready && (selected == nil || info.minerNum < selected.minerNum) {
@@ -101,7 +100,7 @@ func (manager *UpSessionManager) addDownSession(e EventAddDownSession) {
 		return
 	}
 
-	// 服务器均未就绪，若已启用 AlwaysKeepDownconn，就把矿机托管给 FakeUpSession
+	//The server is not ready. If AlwaysKeepDownConn is enabled, the mine machine is hosted to FakeupSession.
 	if manager.config.AlwaysKeepDownconn {
 		manager.fakeUpSession.minerNum++
 		e.Session.SendEvent(EventSetUpSession{manager.fakeUpSession.upSession})

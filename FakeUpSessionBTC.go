@@ -76,7 +76,7 @@ func (up *FakeUpSessionBTC) exit() {
 func (up *FakeUpSessionBTC) sendSubmitResponse(sessionID uint16, id interface{}, status StratumStatus) {
 	down, ok := up.downSessions[sessionID]
 	if !ok {
-		// 客户端已断开，忽略
+		// The client has been disconnected, ignored
 		if glog.V(3) {
 			glog.Info("[fake-pool-connection] cannot find down session: ", sessionID)
 		}

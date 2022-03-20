@@ -96,6 +96,7 @@ func (down *DownSessionBTC) writeJSONResponse(jsonData *JSONRPCResponse) (int, e
 }
 
 func (down *DownSessionBTC) stratumHandleRequest(request *JSONRPCLineBTC, requestJSON []byte) (result interface{}, err *StratumError) {
+	glog.Info("DownStratumHandleRequest. request: ", *request, ", requestJSON: ", string(requestJSON))
 	switch request.Method {
 	case "mining.subscribe":
 		if down.stat != StatConnected {
@@ -183,6 +184,7 @@ func (down *DownSessionBTC) parseMiningSubmit(request *JSONRPCLineBTC) (result i
 	var msg ExMessageSubmitShareBTC
 
 	// [1] Job ID
+
 	jobIDStr, ok := request.Params[1].(string)
 	if !ok {
 		err = StratumErrIllegalParams
@@ -192,22 +194,7 @@ func (down *DownSessionBTC) parseMiningSubmit(request *JSONRPCLineBTC) (result i
 	if IsFakeJobIDBTC(jobIDStr) {
 		msg.IsFakeJob = true
 	} else {
-		jobID := strings.Split(jobIDStr, "_")
-		jobID1, convErr := strconv.ParseUint(jobID[0], 10, 64)
-		if convErr != nil {
-			glog.Error(down.id, "Error param: ", request.Params, convErr)
-			err = StratumErrIllegalParams
-			return
-		}
-		msg.Base.JobID1 = uint16(jobID1)
-
-		jobID2, convErr := strconv.ParseUint(jobID[1], 10, 64)
-		if convErr != nil {
-			glog.Error(down.id, "Error param: ", request.Params, convErr)
-			err = StratumErrIllegalParams
-			return
-		}
-		msg.Base.JobID2 = uint8(jobID2)
+		msg.Base.JobID = jobIDStr
 	}
 
 	// [2] ExtraNonce2
@@ -447,6 +434,7 @@ func (down *DownSessionBTC) recvJSONRPC(e EventRecvJSONRPCBTC) {
 		response.Result = result
 		response.Error = stratumErr.ToJSONRPCArray(nil)
 
+		glog.Info(fmt.Sprintf("recvJSONRPC response: %v",response))
 		_, err := down.writeJSONResponse(&response)
 
 		if err != nil {

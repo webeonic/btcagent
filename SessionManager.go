@@ -77,7 +77,7 @@ func (manager *SessionManager) Stop() {
 }
 
 func (manager *SessionManager) exit() {
-	// 要求所有连接退出
+	// Require all connection to exit
 	for _, up := range manager.upSessionManagers {
 		up.SendEvent(EventExit{})
 	}

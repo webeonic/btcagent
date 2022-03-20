@@ -96,7 +96,7 @@ func (up *UpSessionBTC) connect() {
 		go up.tryConnect(pool.Host, url, "")
 	}
 
-	// 接收连接事件
+	// Receive connection event
 	for i := 0; i < counter; i++ {
 		event := <-up.eventChannel
 		switch e := event.(type) {
@@ -110,12 +110,12 @@ func (up *UpSessionBTC) connect() {
 		}
 	}
 
-	// 无需尝试直连
+	// No need to try directly
 	if counter > 0 && !up.config.DirectConnectAfterProxy {
 		return
 	}
 
-	// 尝试直连
+	// Try directly to
 	go up.tryConnect(pool.Host, url, "")
 	event := <-up.eventChannel
 	switch e := event.(type) {
@@ -190,23 +190,24 @@ func (up *UpSessionBTC) testConnection(conn net.Conn) (reader *bufio.Reader, err
 	reader = bufio.NewReader(conn)
 
 	go func() {
-		capsRequest := up.getAgentGetCapsRequest("conn_test")
-		bytes, e := capsRequest.ToJSONBytesLine()
-		if e == nil {
-			if glog.V(10) {
-				glog.Info(up.id, "testConnection send: ", string(bytes))
-			}
-			conn.SetWriteDeadline(up.getIODeadLine())
-			_, e = conn.Write(bytes)
-			if e == nil {
-				conn.SetReadDeadline(up.getIODeadLine())
-				bytes, e = reader.ReadBytes('\n')
-				if glog.V(9) {
-					glog.Info(up.id, "testConnection recv: ", string(bytes))
-				}
-			}
-		}
-		ch <- e
+		// capsRequest := up.getAgentGetCapsRequest("conn_test")
+		// bytes, e := capsRequest.ToJSONBytesLine()
+		// if e == nil {
+		// 	if glog.V(10) {
+		// 		glog.Info(up.id, "testConnection send: ", string(bytes))
+		// 	}
+		// 	conn.SetWriteDeadline(up.getIODeadLine())
+		// 	_, e = conn.Write(bytes)
+		// 	if e == nil {
+		// 		conn.SetReadDeadline(up.getIODeadLine())
+		// 		bytes, e = reader.ReadBytes('\n')
+		// 		if glog.V(9) {
+		// 			glog.Info(up.id, "testConnection recv: ", string(bytes))
+		// 		}
+		// 	}
+		// }
+		// 
+		ch <- nil
 	}()
 
 	select {
@@ -231,6 +232,7 @@ func (up *UpSessionBTC) writeJSONRequest(jsonData *JSONRPCRequest) (int, error) 
 }
 
 func (up *UpSessionBTC) writeExMessage(msg SerializableExMessage) (int, error) {
+	glog.Info(up.id, "writeExMessage: ", msg)
 	bytes := msg.Serialize()
 	if glog.V(10) && len(bytes) > 1 {
 		glog.Info(up.id, "writeExMessage: ", bytes[1], msg, " ", hex.EncodeToString(bytes))
@@ -245,7 +247,7 @@ func (up *UpSessionBTC) writeBytes(bytes []byte) (int, error) {
 
 func (up *UpSessionBTC) getAgentGetCapsRequest(id string) (req JSONRPCRequest) {
 	req.ID = id
-	req.Method = "agent.get_capabilities"
+	req.Method = "mining.capabilities"
 	if up.config.SubmitResponseFromServer {
 		req.SetParams(JSONRPCArray{CapVersionRolling, CapSubmitResponse})
 	} else {
@@ -256,11 +258,11 @@ func (up *UpSessionBTC) getAgentGetCapsRequest(id string) (req JSONRPCRequest) {
 
 func (up *UpSessionBTC) sendInitRequest() (err error) {
 	// send agent.get_capabilities first
-	capsRequest := up.getAgentGetCapsRequest("caps")
-	_, err = up.writeJSONRequest(&capsRequest)
-	if err != nil {
-		return
-	}
+	// capsRequest := up.getAgentGetCapsRequest("caps")
+	// _, err = up.writeJSONRequest(&capsRequest)
+	// if err != nil {
+	// 	return
+	// }
 
 	// send configure request
 	var request JSONRPCRequest
@@ -293,8 +295,8 @@ func (up *UpSessionBTC) sendInitRequest() (err error) {
 	// send agent.get_capabilities again
 	// fix subres (submit_response_from_server)
 	// Subres negotiation must be sent after authentication, or sserver will not send the response.
-	capsRequest.ID = "caps_again"
-	_, err = up.writeJSONRequest(&capsRequest)
+	// capsRequest.ID = "caps_again"
+	// _, err = up.writeJSONRequest(&capsRequest)
 	return
 }
 
@@ -429,7 +431,7 @@ func (up *UpSessionBTC) handleSubScribeResponse(rpcData *JSONRPCLineBTC, jsonByt
 	}
 	up.extraNonce2Size = int(extraNonce2SizeFloat)
 	if up.extraNonce2Size != 4 {
-		glog.Error(up.id, "BTCAgent is not compatible with this server, extra nonce 2 should be 8 bytes but only ", up.extraNonce2Size, " bytes")
+		glog.Error(up.id, "BTCAgent is not compatible with this server, extra nonce 2 should be 4 bytes but only ", up.extraNonce2Size, " bytes")
 		up.close()
 		return
 	}
@@ -484,7 +486,7 @@ func (up *UpSessionBTC) handleAuthorizeResponse(rpcData *JSONRPCLineBTC, jsonByt
 	}
 	glog.Info(up.id, "authorize success, session id: ", up.sessionID)
 	up.stat = StatAuthorized
-	// 让 Init() 函数返回
+	//Let the init () function returns
 	up.eventLoopRunning = false
 }
 
@@ -521,6 +523,7 @@ func (up *UpSessionBTC) handleResponse() {
 			up.connBroken()
 			return
 		}
+		glog.Info("magicNum:",magicNum,"[0]:", magicNum[0])
 		if magicNum[0] == ExMessageMagicNumber {
 			up.readExMessage()
 		} else {
@@ -562,6 +565,7 @@ func (up *UpSessionBTC) readExMessage() {
 	if glog.V(9) {
 		glog.Info(up.id, "readExMessage: ", message.ExMessageHeader.Type, " ", hex.EncodeToString(message.Body))
 	}
+	glog.Info("EventRecvExMessage{message}:",message)
 	up.SendEvent(EventRecvExMessage{message})
 }
 
@@ -576,12 +580,12 @@ func (up *UpSessionBTC) readLine() {
 		glog.Info(up.id, "readLine: ", string(jsonBytes))
 	}
 
-	jsonBytes = []byte(strings.Replace(string(jsonBytes),"auth","\"auth\"",1))
+	jsonBytes = []byte(strings.Replace(string(jsonBytes), ":auth", ":\"auth\"", 1))
 	rpcData, err := NewJSONRPCLineBTC(jsonBytes)
 
 	// ignore the json decode error
 	if err != nil {
-		glog.Info(up.id, "failed to decode JSON line from pool server: ", err.Error(), "; ", string(jsonBytes))
+		glog.Error(up.id, "failed to decode JSON line from pool server: ", err.Error(), "; ", string(jsonBytes))
 		return
 	}
 
@@ -661,6 +665,8 @@ func (up *UpSessionBTC) recvJSONRPC(e EventRecvJSONRPCBTC) {
 	rpcData := e.RPCData
 	jsonBytes := e.JSONBytes
 
+	glog.Info("UpSessionRecvJSONRPC. RPCData: ", *e.RPCData, ", JSONBytes: ",string(jsonBytes))
+
 	if len(rpcData.Method) > 0 {
 		switch rpcData.Method {
 		case "mining.set_version_mask":
@@ -699,6 +705,9 @@ func (up *UpSessionBTC) handleSubmitShare(e EventSubmitShareBTC) {
 		return
 	}
 
+	glog.Info("handleSubmitShare. ID: ", e.ID , " message: ", *e.Message)
+	
+	
 	_, err := up.writeExMessage(e.Message)
 
 	if up.config.SubmitResponseFromServer && up.serverCapSubmitResponse {
@@ -718,7 +727,7 @@ func (up *UpSessionBTC) handleSubmitShare(e EventSubmitShareBTC) {
 func (up *UpSessionBTC) sendSubmitResponse(sessionID uint16, id interface{}, status StratumStatus) {
 	down, ok := up.downSessions[sessionID]
 	if !ok {
-		// 客户端已断开，忽略
+		// The client has been disconnected, ignored
 		if glog.V(3) {
 			glog.Info(up.id, "cannot find down session: ", sessionID)
 		}
@@ -775,7 +784,7 @@ func (up *UpSessionBTC) handleExMessageMiningSetDiff(ex *ExMessage) {
 		if down != nil {
 			go down.SendEvent(e)
 		} else {
-			// 客户端已断开，忽略
+			// The client has been disconnected, ignored
 			if glog.V(3) {
 				glog.Info(up.id, "cannot find down session: ", sessionID)
 			}
@@ -814,7 +823,7 @@ func (up *UpSessionBTC) sendUpdateMinerNum() {
 
 func (up *UpSessionBTC) outdatedUpSessionConnection(e EventUpSessionConnection) {
 	// up.Connect () method has its own event loop to receive connections.
-// So the connection to arrive here is extra, you can close directly.
+	// So the connection to arrive here is extra, you can close directly.
 	if e.Conn != nil {
 		e.Conn.Close()
 	}

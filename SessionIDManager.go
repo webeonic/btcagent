@@ -8,14 +8,14 @@ import (
 
 //////////////////////////////// SessionIDManager //////////////////////////////
 
-// SessionIDManager 线程安全的会话ID管理器
+// SessionIDManager Thread security session ID manager
 type SessionIDManager struct {
 	lock       sync.Mutex
 	sessionIDs *bitset.BitSet
 
 	count        uint16 // how many ids are used now
 	allocIDx     uint16
-	maxSessionId uint16 // sessionID可以达到的最大数值
+	maxSessionId uint16 // session IDMaximum value that can be achieved
 }
 
 // NewSessionIDManager Create a session ID manager instance
@@ -50,7 +50,7 @@ func (manager *SessionIDManager) next() {
 	}
 }
 
-// AllocSessionID 为调用者分配一个会话ID
+// AllocSessionID Assign a session ID for the caller
 func (manager *SessionIDManager) AllocSessionID() (sessionID uint16, err error) {
 	defer manager.lock.Unlock()
 	manager.lock.Lock()

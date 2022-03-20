@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
+
+	"github.com/golang/glog"
 )
 
 // ex-message的magic number
@@ -62,6 +64,9 @@ func (msg *ExMessageRegisterWorker) Serialize() []byte {
 	buf.WriteString(msg.WorkerName)
 	buf.WriteByte(0)
 
+	glog.Info("ExMessageRegisterWorker buf:",buf.String(), "header:",header, "msg.Base:",msg)
+
+
 	return buf.Bytes()
 }
 
@@ -85,8 +90,7 @@ func (msg *ExMessageUnregisterWorker) Serialize() []byte {
 
 type ExMessageSubmitShareBTC struct {
 	Base struct {
-		JobID2      uint8
-		JobID1      uint16
+		JobID       string
 		SessionID   uint16
 		ExtraNonce2 uint32
 		Nonce       uint32
@@ -105,31 +109,38 @@ func (msg *ExMessageSubmitShareBTC) Serialize() []byte {
 	if msg.Time == 0 {
 		if msg.VersionMask == 0 {
 			header.Type = CMD_SUBMIT_SHARE
-			header.Size = 4 + 1 + 2 + 2 + 4 + 4
+			header.Size = uint16(4 + len(msg.Base.JobID) + 1 + 2 + 4 + 4)
 		} else {
 			header.Type = CMD_SUBMIT_SHARE_WITH_VER
-			header.Size = 4 + 1 + 2 + 2 + 4 + 4 + 4
+			header.Size = uint16(4 + len(msg.Base.JobID)+ 1 + 2 + 4 + 4 + 4)
 		}
 	} else {
 		if msg.VersionMask == 0 {
 			header.Type = CMD_SUBMIT_SHARE_WITH_TIME
-			header.Size = 4 + 1 + 2 + 2 + 4 + 4 + 4
+			header.Size = uint16(4 + len(msg.Base.JobID)+ 1 + 2 + 4 + 4 + 4)
 		} else {
 			header.Type = CMD_SUBMIT_SHARE_WITH_TIME_VER
-			header.Size = 4 + 1 + 2 + 2 + 4 + 4 + 4 + 4
+			header.Size = uint16(4 + len(msg.Base.JobID)+ 1 + 2 + 4 + 4 + 4 + 4)
 		}
 	}
 
 	buf := new(bytes.Buffer)
 
 	binary.Write(buf, binary.LittleEndian, &header)
-	binary.Write(buf, binary.LittleEndian, &msg.Base)
+	buf.WriteString(msg.Base.JobID)
+	buf.WriteByte(0)
+	binary.Write(buf, binary.LittleEndian, msg.Base.SessionID)
+	binary.Write(buf, binary.LittleEndian, msg.Base.ExtraNonce2)
+	binary.Write(buf, binary.LittleEndian, msg.Base.Nonce)
+
 	if msg.Time != 0 {
 		binary.Write(buf, binary.LittleEndian, msg.Time)
 	}
 	if msg.VersionMask != 0 {
 		binary.Write(buf, binary.LittleEndian, msg.VersionMask)
 	}
+
+	glog.Info("ExMessageSubmitShareBTC buf:",buf.String(), "header:",header, "msg.Base:",msg.Base)
 
 	return buf.Bytes()
 }

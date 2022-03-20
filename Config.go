@@ -70,18 +70,18 @@ type Config struct {
 		Listen string `json:"listen"`
 	} `json:"http_debug"`
 	Advanced struct {
-		// 每个子账户的矿池连接数量
+		// Number of mine connections for each child account
 		PoolConnectionNumberPerSubAccount uint8 `json:"pool_connection_number_per_subaccount"`
-		// 矿池连接超时时间
+		// Mining connection timeout
 		PoolConnectionDialTimeoutSeconds Seconds `json:"pool_connection_dial_timeout_seconds"`
-		// 矿池读取超时时间
+		// Mining pool reading timeout
 		PoolConnectionReadTimeoutSeconds Seconds `json:"pool_connection_read_timeout_seconds"`
-		// 假任务的发送周期（秒）
+		// Send cycle of false tasks (seconds)
 		FakeJobNotifyIntervalSeconds Seconds `json:"fake_job_notify_interval_seconds"`
-		// 不进行 TLS 证书校验
+		// TLS certificate verification
 		TLSSkipCertificateVerify bool `json:"tls_skip_certificate_verify"`
 
-		// 消息队列大小
+		// Message queue size
 		MessageQueueSize struct {
 			SessionManager     uint `json:"session_manager"`
 			PoolSessionManager uint `json:"pool_session_manager"`
@@ -93,7 +93,7 @@ type Config struct {
 	sessionFactory SessionFactory
 }
 
-// NewConfig 创建配置对象并设置默认值
+// NewConfig Create a configuration object and set the default value
 func NewConfig() (config *Config) {
 	config = new(Config)
 	config.AgentType = "btc"
@@ -117,7 +117,7 @@ func NewConfig() (config *Config) {
 	return
 }
 
-// LoadFromFile 从文件载入配置
+// LoadFromFile Load configuration from file
 func (conf *Config) LoadFromFile(file string) (err error) {
 	configJSON, err := ioutil.ReadFile(file)
 	if err != nil {
@@ -170,7 +170,7 @@ func (conf *Config) Init() {
 	for i := range conf.Pools {
 		pool := &conf.Pools[i]
 		if conf.MultiUserMode {
-			// 如果启用多用户模式，删除矿池设置中的子账户名
+			// If multi-user mode is enabled, delete the subscriber name in the mine set setting
 			pool.SubAccount = ""
 			glog.Info("add pool: ", pool.Host, ":", pool.Port, ", multi user mode")
 		} else {

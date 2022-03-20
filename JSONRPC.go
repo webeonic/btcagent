@@ -11,7 +11,7 @@ type JSONRPCRequest struct {
 	Params []interface{} `json:"params"`
 }
 
-// JSONRPCResponse JSON RPC 响应的数据结构
+// JSONRPCResponse JSON RPC Response data structure
 type JSONRPCResponse struct {
 	ID     interface{} `json:"id"`
 	Result interface{} `json:"result"`
@@ -63,10 +63,10 @@ type JSONRPC2Response struct {
 	Error   *JSONRPC2Error `json:"error,omitempty"`
 }
 
-// JSONRPCArray JSON RPC 数组
+// JSONRPCArray JSON RPC Array
 type JSONRPCArray []interface{}
 
-// JSONRPCObj JSON RPC 对象
+// JSONRPCObj JSON RPC Object
 type JSONRPCObj map[string]interface{}
 
 // NewJSONRPC2Error create json-rpc 2.0 error object from json-1.0 error object
