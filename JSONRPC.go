@@ -129,7 +129,7 @@ func (rpcData *JSONRPCRequest) SetParams(param ...interface{}) {
 	rpcData.Params = param
 }
 
-// ToJSONBytes 将 JSONRPCRequest 对象转换为 JSON 字节序列
+// TojsonBytes converts the JSONRPCREQUEST object to a JSON byte sequence
 func (rpcData *JSONRPCRequest) ToJSONBytes() ([]byte, error) {
 	return json.Marshal(rpcData)
 }

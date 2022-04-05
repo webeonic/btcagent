@@ -238,8 +238,6 @@ func (manager *UpSessionManager) handleEvent() {
 			manager.updateFakeMinerNum(e)
 		case EventUpdateFakeJobBTC:
 			manager.updateFakeJob(e)
-		case EventUpdateFakeJobETH:
-			manager.updateFakeJob(e)
 		case EventPrintMinerNum:
 			manager.printMinerNum()
 		case EventExit:

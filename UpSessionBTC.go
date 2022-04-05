@@ -810,17 +810,6 @@ func (up *UpSessionBTC) handleExMessageMiningSetDiff(ex *ExMessage) {
 	}
 }
 
-func (up *UpSessionBTC) recvExMessage(e EventRecvExMessage) {
-	switch e.Message.Type {
-	case CMD_SUBMIT_RESPONSE:
-		up.handleExMessageSubmitResponse(e.Message)
-	case CMD_MINING_SET_DIFF:
-		up.handleExMessageMiningSetDiff(e.Message)
-	default:
-		glog.Error(up.id, "unknown ex-message: ", e.Message)
-	}
-}
-
 func (up *UpSessionBTC) downSessionBroken(e EventDownSessionBroken) {
 	delete(up.downSessions, e.SessionID)
 	//up.unregisterWorker(e.SessionID)
@@ -863,8 +852,6 @@ func (up *UpSessionBTC) handleEvent() {
 			up.sendUpdateMinerNum()
 		case EventRecvJSONRPCBTC:
 			up.recvJSONRPC(e)
-		case EventRecvExMessage:
-			up.recvExMessage(e)
 		case EventConnBroken:
 			up.close()
 		case EventUpSessionConnection:

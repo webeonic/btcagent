@@ -90,9 +90,6 @@ type EventUpdateFakeJobBTC struct {
 	FakeJob *StratumJobBTC
 }
 
-type EventUpdateFakeJobETH struct {
-	FakeJob *StratumJobETH
-}
 
 type EventTransferDownSessions struct{}
 
@@ -113,6 +110,3 @@ type EventSetExtraNonce struct {
 	ExtraNonce uint32
 }
 
-type EventStratumJobETH struct {
-	Job *StratumJobETH
-}

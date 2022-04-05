@@ -132,8 +132,6 @@ func (conf *Config) Init() {
 	switch conf.AgentType {
 	case "btc":
 		conf.sessionFactory = new(SessionFactoryBTC)
-	case "eth":
-		conf.sessionFactory = new(SessionFactoryETH)
 	default:
 		glog.Fatal("[OPTION] Unknown agent_type: ", conf.AgentType)
 		return
