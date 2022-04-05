@@ -123,8 +123,8 @@ func (rpcData *JSONRPCRequest) AddParams(param ...interface{}) {
 	rpcData.Params = append(rpcData.Params, param...)
 }
 
-// SetParams 设置 JSONRPCRequest 对象的参数
-// 传递给 SetParams 的参数列表将按顺序复制到 JSONRPCRequest.Params 中
+//SetParams Set the parameters of the JSONRPCREQUEST object
+// Parameter list passed to setParams will be copied in the order of jsonrpcRequest.Params
 func (rpcData *JSONRPCRequest) SetParams(param ...interface{}) {
 	rpcData.Params = param
 }

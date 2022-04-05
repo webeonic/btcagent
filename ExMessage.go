@@ -64,8 +64,7 @@ func (msg *ExMessageRegisterWorker) Serialize() []byte {
 	buf.WriteString(msg.WorkerName)
 	buf.WriteByte(0)
 
-	glog.Info("ExMessageRegisterWorker buf:",buf.String(), "header:",header, "msg.Base:",msg)
-
+	glog.Info("ExMessageRegisterWorker buf:", buf.String(), "header:", header, "msg.Base:", msg)
 
 	return buf.Bytes()
 }
@@ -92,11 +91,11 @@ type ExMessageSubmitShareBTC struct {
 	Base struct {
 		JobID       string
 		SessionID   uint16
-		ExtraNonce2 uint32
-		Nonce       uint32
+		ExtraNonce2 string
+		Nonce       string
 	}
 
-	Time        uint32
+	Time        string
 	VersionMask uint32
 
 	IsFakeJob bool
@@ -106,41 +105,41 @@ func (msg *ExMessageSubmitShareBTC) Serialize() []byte {
 	var header ExMessageHeader
 	header.MagicNumber = ExMessageMagicNumber
 
-	if msg.Time == 0 {
-		if msg.VersionMask == 0 {
-			header.Type = CMD_SUBMIT_SHARE
-			header.Size = uint16(4 + len(msg.Base.JobID) + 1 + 2 + 4 + 4)
-		} else {
-			header.Type = CMD_SUBMIT_SHARE_WITH_VER
-			header.Size = uint16(4 + len(msg.Base.JobID)+ 1 + 2 + 4 + 4 + 4)
-		}
-	} else {
-		if msg.VersionMask == 0 {
-			header.Type = CMD_SUBMIT_SHARE_WITH_TIME
-			header.Size = uint16(4 + len(msg.Base.JobID)+ 1 + 2 + 4 + 4 + 4)
-		} else {
-			header.Type = CMD_SUBMIT_SHARE_WITH_TIME_VER
-			header.Size = uint16(4 + len(msg.Base.JobID)+ 1 + 2 + 4 + 4 + 4 + 4)
-		}
-	}
+	// if msg.Time == 0 {
+	// 	if msg.VersionMask == 0 {
+	// 		header.Type = CMD_SUBMIT_SHARE
+	// 		header.Size = uint16(4 + len(msg.Base.JobID) + 1 + 2 + 4 + 4)
+	// 	} else {
+	// 		header.Type = CMD_SUBMIT_SHARE_WITH_VER
+	// 		header.Size = uint16(4 + len(msg.Base.JobID)+ 1 + 2 + 4 + 4 + 4)
+	// 	}
+	// } else {
+	// 	if msg.VersionMask == 0 {
+	// 		header.Type = CMD_SUBMIT_SHARE_WITH_TIME
+	// 		header.Size = uint16(4 + len(msg.Base.JobID)+ 1 + 2 + 4 + 4 + 4)
+	// 	} else {
+	// 		header.Type = CMD_SUBMIT_SHARE_WITH_TIME_VER
+	// 		header.Size = uint16(4 + len(msg.Base.JobID)+ 1 + 2 + 4 + 4 + 4 + 4)
+	// 	}
+	// }
 
 	buf := new(bytes.Buffer)
 
-	binary.Write(buf, binary.LittleEndian, &header)
-	buf.WriteString(msg.Base.JobID)
-	buf.WriteByte(0)
-	binary.Write(buf, binary.LittleEndian, msg.Base.SessionID)
-	binary.Write(buf, binary.LittleEndian, msg.Base.ExtraNonce2)
-	binary.Write(buf, binary.LittleEndian, msg.Base.Nonce)
+	// binary.Write(buf, binary.LittleEndian, &header)
+	// buf.WriteString(msg.Base.JobID)
+	// buf.WriteByte(0)
+	// binary.Write(buf, binary.LittleEndian, msg.Base.SessionID)
+	// binary.Write(buf, binary.LittleEndian, msg.Base.ExtraNonce2)
+	// binary.Write(buf, binary.LittleEndian, msg.Base.Nonce)
 
-	if msg.Time != 0 {
-		binary.Write(buf, binary.LittleEndian, msg.Time)
-	}
-	if msg.VersionMask != 0 {
-		binary.Write(buf, binary.LittleEndian, msg.VersionMask)
-	}
+	// if msg.Time != 0 {
+	// 	binary.Write(buf, binary.LittleEndian, msg.Time)
+	// }
+	// if msg.VersionMask != 0 {
+	// 	binary.Write(buf, binary.LittleEndian, msg.VersionMask)
+	// }
 
-	glog.Info("ExMessageSubmitShareBTC buf:",buf.String(), "header:",header, "msg.Base:",msg.Base)
+	// glog.Info("ExMessageSubmitShareBTC buf:",buf.String(), "header:",header, "msg.Base:",msg.Base)
 
 	return buf.Bytes()
 }

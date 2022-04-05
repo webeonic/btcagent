@@ -32,10 +32,6 @@ type EventAddDownSession struct {
 
 type EventConnBroken struct{}
 
-type EventRecvExMessage struct {
-	Message *ExMessage
-}
-
 type EventRecvJSONRPCBTC struct {
 	RPCData   *JSONRPCLineBTC
 	JSONBytes []byte

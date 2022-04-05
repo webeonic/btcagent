@@ -3,15 +3,12 @@ package main
 import (
 	"bufio"
 	"crypto/tls"
-	"encoding/binary"
-	"encoding/hex"
 	"errors"
 	"fmt"
-	"io"
 	"net"
 	"strconv"
-	"time"
 	"strings"
+	"time"
 
 	"github.com/golang/glog"
 )
@@ -206,7 +203,7 @@ func (up *UpSessionBTC) testConnection(conn net.Conn) (reader *bufio.Reader, err
 		// 		}
 		// 	}
 		// }
-		// 
+		//
 		ch <- nil
 	}()
 
@@ -231,16 +228,17 @@ func (up *UpSessionBTC) writeJSONRequest(jsonData *JSONRPCRequest) (int, error) 
 	return up.writeBytes(bytes)
 }
 
-func (up *UpSessionBTC) writeExMessage(msg SerializableExMessage) (int, error) {
-	glog.Info(up.id, "writeExMessage: ", msg)
-	bytes := msg.Serialize()
-	if glog.V(10) && len(bytes) > 1 {
-		glog.Info(up.id, "writeExMessage: ", bytes[1], msg, " ", hex.EncodeToString(bytes))
-	}
-	return up.writeBytes(bytes)
-}
+// func (up *UpSessionBTC) writeExMessage(msg SerializableExMessage) (int, error) {
+// 	glog.Info(up.id, "writeExMessage: ", msg)
+// 	bytes := msg.Serialize()
+// 	if glog.V(10) && len(bytes) > 1 {
+// 		glog.Info(up.id, "writeExMessage: ", bytes[1], msg, " ", hex.EncodeToString(bytes))
+// 	}
+// 	return up.writeBytes(bytes)
+// }
 
 func (up *UpSessionBTC) writeBytes(bytes []byte) (int, error) {
+	glog.InfoDepth(12, "writeBytes before DeadLine: ", string(bytes))
 	up.setWriteDeadline()
 	return up.serverConn.Write(bytes)
 }
@@ -286,7 +284,7 @@ func (up *UpSessionBTC) sendInitRequest() (err error) {
 	// send authorize request
 	request.ID = "auth"
 	request.Method = "mining.authorize"
-	request.SetParams(up.subAccount, "")
+	request.SetParams(up.subAccount, "123456")
 	_, err = up.writeJSONRequest(&request)
 	if err != nil {
 		return
@@ -523,51 +521,51 @@ func (up *UpSessionBTC) handleResponse() {
 			up.connBroken()
 			return
 		}
-		glog.Info("magicNum:",magicNum,"[0]:", magicNum[0])
+		glog.Info("magicNum:", magicNum, "[0]:", magicNum[0])
 		if magicNum[0] == ExMessageMagicNumber {
-			up.readExMessage()
+			//up.readExMessage()
 		} else {
 			up.readLine()
 		}
 	}
 }
 
-func (up *UpSessionBTC) readExMessage() {
-	// ex-message:
-	//   magic_number	uint8_t		magic number for Ex-Message, always 0x7F
-	//   type/cmd		uint8_t		message type
-	//   length			uint16_t	message length (include header self)
-	//   message_body	uint8_t[]	message body
-	message := new(ExMessage)
-	err := binary.Read(up.serverReader, binary.LittleEndian, &message.ExMessageHeader)
-	if err != nil {
-		glog.Error(up.id, "failed to read ex-message header from pool server: ", err.Error())
-		up.connBroken()
-		return
-	}
-	if message.Size < 4 {
-		glog.Warning(up.id, "broken ex-message header from pool server: ", message.ExMessageHeader)
-		up.connBroken()
-		return
-	}
+// func (up *UpSessionBTC) readExMessage() {
+// 	// ex-message:
+// 	//   magic_number	uint8_t		magic number for Ex-Message, always 0x7F
+// 	//   type/cmd		uint8_t		message type
+// 	//   length			uint16_t	message length (include header self)
+// 	//   message_body	uint8_t[]	message body
+// 	message := new(ExMessage)
+// 	err := binary.Read(up.serverReader, binary.LittleEndian, &message.ExMessageHeader)
+// 	if err != nil {
+// 		glog.Error(up.id, "failed to read ex-message header from pool server: ", err.Error())
+// 		up.connBroken()
+// 		return
+// 	}
+// 	if message.Size < 4 {
+// 		glog.Warning(up.id, "broken ex-message header from pool server: ", message.ExMessageHeader)
+// 		up.connBroken()
+// 		return
+// 	}
 
-	size := message.Size - 4 // Len includes the length of the Header 4 bytes, so
-	if size > 0 {
-		message.Body = make([]byte, size)
-		_, err = io.ReadFull(up.serverReader, message.Body)
-		if err != nil {
-			glog.Error(up.id, "failed to read ex-message body from pool server: ", err.Error())
-			up.connBroken()
-			return
-		}
-	}
+// 	size := message.Size - 4 // Len includes the length of the Header 4 bytes, so
+// 	if size > 0 {
+// 		message.Body = make([]byte, size)
+// 		_, err = io.ReadFull(up.serverReader, message.Body)
+// 		if err != nil {
+// 			glog.Error(up.id, "failed to read ex-message body from pool server: ", err.Error())
+// 			up.connBroken()
+// 			return
+// 		}
+// 	}
 
-	if glog.V(9) {
-		glog.Info(up.id, "readExMessage: ", message.ExMessageHeader.Type, " ", hex.EncodeToString(message.Body))
-	}
-	glog.Info("EventRecvExMessage{message}:",message)
-	up.SendEvent(EventRecvExMessage{message})
-}
+// 	if glog.V(9) {
+// 		glog.Info(up.id, "readExMessage: ", message.ExMessageHeader.Type, " ", hex.EncodeToString(message.Body))
+// 	}
+// 	glog.Info("EventRecvExMessage{message}:", message)
+// 	up.SendEvent(EventRecvExMessage{message})
+// }
 
 func (up *UpSessionBTC) readLine() {
 	jsonBytes, err := up.serverReader.ReadBytes('\n')
@@ -603,7 +601,7 @@ func (up *UpSessionBTC) SendEvent(event interface{}) {
 func (up *UpSessionBTC) addDownSession(e EventAddDownSession) {
 	down := e.Session.(*DownSessionBTC)
 	up.downSessions[down.sessionID] = down
-	up.registerWorker(down)
+	//up.registerWorker(down)
 
 	if up.rpcSetVersionMask != nil && down.versionMask != 0 {
 		down.SendEvent(EventSendBytes{up.rpcSetVersionMask})
@@ -623,23 +621,23 @@ func (up *UpSessionBTC) addDownSession(e EventAddDownSession) {
 	}
 }
 
-func (up *UpSessionBTC) registerWorker(down *DownSessionBTC) {
-	msg := ExMessageRegisterWorker{down.sessionID, down.clientAgent, down.workerName}
-	_, err := up.writeExMessage(&msg)
-	if err != nil {
-		glog.Error(up.id, "failed to register worker to pool server: ", err.Error())
-		up.close()
-	}
-}
+// func (up *UpSessionBTC) registerWorker(down *DownSessionBTC) {
+// 	msg := ExMessageRegisterWorker{down.sessionID, down.clientAgent, down.workerName}
+// 	_, err := up.writeExMessage(&msg)
+// 	if err != nil {
+// 		glog.Error(up.id, "failed to register worker to pool server: ", err.Error())
+// 		up.close()
+// 	}
+// }
 
-func (up *UpSessionBTC) unregisterWorker(sessionID uint16) {
-	msg := ExMessageUnregisterWorker{sessionID}
-	_, err := up.writeExMessage(&msg)
-	if err != nil {
-		glog.Error(up.id, "failed to unregister worker from pool server: ", err.Error())
-		up.close()
-	}
-}
+// func (up *UpSessionBTC) unregisterWorker(sessionID uint16) {
+// 	msg := ExMessageUnregisterWorker{sessionID}
+// 	_, err := up.writeExMessage(&msg)
+// 	if err != nil {
+// 		glog.Error(up.id, "failed to unregister worker from pool server: ", err.Error())
+// 		up.close()
+// 	}
+// }
 
 func (up *UpSessionBTC) handleMiningNotify(rpcData *JSONRPCLineBTC, jsonBytes []byte) {
 	job, err := NewStratumJobBTC(rpcData, up.sessionID)
@@ -665,7 +663,7 @@ func (up *UpSessionBTC) recvJSONRPC(e EventRecvJSONRPCBTC) {
 	rpcData := e.RPCData
 	jsonBytes := e.JSONBytes
 
-	glog.Info("UpSessionRecvJSONRPC. RPCData: ", *e.RPCData, ", JSONBytes: ",string(jsonBytes))
+	glog.Info("UpSessionRecvJSONRPC. RPCData: ", *e.RPCData, ", JSONBytes: ", string(jsonBytes))
 
 	if len(rpcData.Method) > 0 {
 		switch rpcData.Method {
@@ -704,24 +702,44 @@ func (up *UpSessionBTC) handleSubmitShare(e EventSubmitShareBTC) {
 		up.sendSubmitResponse(e.Message.Base.SessionID, e.ID, STATUS_ACCEPT)
 		return
 	}
+	glog.Info("handleSubmitShare workerFullName: ", up.downSessions[e.Message.Base.SessionID].fullName)
+	glog.Info("handleSubmitShare. ID: ", e.ID, " message: ", *e.Message)
 
-	glog.Info("handleSubmitShare. ID: ", e.ID , " message: ", *e.Message)
-	
-	
-	_, err := up.writeExMessage(e.Message)
+	// test request with writeJSONRequest (not writeExMessage)
 
-	if up.config.SubmitResponseFromServer && up.serverCapSubmitResponse {
-		up.submitIDs[up.submitIndex] = SubmitID{e.ID, e.Message.Base.SessionID}
-		up.submitIndex++
-	} else {
-		up.sendSubmitResponse(e.Message.Base.SessionID, e.ID, STATUS_ACCEPT)
-	}
+	var request JSONRPCRequest
+	request.ID = e.ID
+	request.Method = "mining.submit"
+	request.SetParams(
+		up.downSessions[e.Message.Base.SessionID].fullName,
+		e.Message.Base.JobID,
+		e.Message.Base.ExtraNonce2,
+		e.Message.Time,
+		e.Message.Base.Nonce)
+
+	glog.Info("handleSubmitShare request: ", request)
+	_, err := up.writeJSONRequest(&request)
 
 	if err != nil {
 		glog.Error(up.id, "failed to submit share: ", err.Error())
 		up.close()
 		return
 	}
+
+	// _, err := up.writeExMessage(e.Message)
+
+	// if up.config.SubmitResponseFromServer && up.serverCapSubmitResponse {
+	// 	up.submitIDs[up.submitIndex] = SubmitID{e.ID, e.Message.Base.SessionID}
+	// 	up.submitIndex++
+	// } else {
+	// 	up.sendSubmitResponse(e.Message.Base.SessionID, e.ID, STATUS_ACCEPT)
+	// }
+
+	// if err != nil {
+	// 	glog.Error(up.id, "failed to submit share: ", err.Error())
+	// 	up.close()
+	// 	return
+	// }
 }
 
 func (up *UpSessionBTC) sendSubmitResponse(sessionID uint16, id interface{}, status StratumStatus) {
@@ -805,7 +823,7 @@ func (up *UpSessionBTC) recvExMessage(e EventRecvExMessage) {
 
 func (up *UpSessionBTC) downSessionBroken(e EventDownSessionBroken) {
 	delete(up.downSessions, e.SessionID)
-	up.unregisterWorker(e.SessionID)
+	//up.unregisterWorker(e.SessionID)
 
 	if up.disconnectedMinerCounter == 0 {
 		go func() {

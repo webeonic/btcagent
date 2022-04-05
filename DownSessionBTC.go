@@ -203,12 +203,13 @@ func (down *DownSessionBTC) parseMiningSubmit(request *JSONRPCLineBTC) (result i
 		err = StratumErrIllegalParams
 		return
 	}
-	extraNonce, convErr := strconv.ParseUint(extraNonce2Hex, 16, 32)
-	if convErr != nil {
-		err = StratumErrIllegalParams
-		return
-	}
-	msg.Base.ExtraNonce2 = uint32(extraNonce)
+	// extraNonce, convErr := strconv.ParseUint(extraNonce2Hex, 16, 32)
+	// if convErr != nil {
+	// 	err = StratumErrIllegalParams
+	// 	return
+	// }
+	//msg.Base.ExtraNonce2 = uint32(extraNonce)
+	msg.Base.ExtraNonce2 = extraNonce2Hex
 
 	// [3] Time
 	timeHex, ok := request.Params[3].(string)
@@ -216,12 +217,13 @@ func (down *DownSessionBTC) parseMiningSubmit(request *JSONRPCLineBTC) (result i
 		err = StratumErrIllegalParams
 		return
 	}
-	time, convErr := strconv.ParseUint(timeHex, 16, 32)
-	if convErr != nil {
-		err = StratumErrIllegalParams
-		return
-	}
-	msg.Time = uint32(time)
+	// time, convErr := strconv.ParseUint(timeHex, 16, 32)
+	// if convErr != nil {
+	// 	err = StratumErrIllegalParams
+	// 	return
+	// }
+	// msg.Time = uint32(time)
+	msg.Time = timeHex
 
 	// [4] Nonce
 	nonceHex, ok := request.Params[4].(string)
@@ -229,12 +231,13 @@ func (down *DownSessionBTC) parseMiningSubmit(request *JSONRPCLineBTC) (result i
 		err = StratumErrIllegalParams
 		return
 	}
-	nonce, convErr := strconv.ParseUint(nonceHex, 16, 32)
-	if convErr != nil {
-		err = StratumErrIllegalParams
-		return
-	}
-	msg.Base.Nonce = uint32(nonce)
+	// nonce, convErr := strconv.ParseUint(nonceHex, 16, 32)
+	// if convErr != nil {
+	// 	err = StratumErrIllegalParams
+	// 	return
+	// }
+	// msg.Base.Nonce = uint32(nonce)
+	msg.Base.Nonce = nonceHex
 
 	// [5] Version Mask
 	hasVersionMask := false
@@ -434,7 +437,7 @@ func (down *DownSessionBTC) recvJSONRPC(e EventRecvJSONRPCBTC) {
 		response.Result = result
 		response.Error = stratumErr.ToJSONRPCArray(nil)
 
-		glog.Info(fmt.Sprintf("recvJSONRPC response: %v",response))
+		glog.Info(fmt.Sprintf("recvJSONRPC response: %v", response))
 		_, err := down.writeJSONResponse(&response)
 
 		if err != nil {
