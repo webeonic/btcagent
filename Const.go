@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/hex"
 
-	"github.com/holiman/uint256"
 )
 
 // AuthorizeStat 认证状态
@@ -31,11 +29,6 @@ const (
 	ProtocolLegacyStratum
 )
 
-// NiceHash Ethereum Stratum Protocol 的协议类型前缀
-const EthereumStratumPrefix = "ethereumstratum/"
-
-// 响应中使用的 NiceHash Ethereum Stratum Protocol 的版本
-const EthereumStratumVersion = "EthereumStratum/1.0.0"
 
 const DownSessionChannelCache uint = 64
 const UpSessionChannelCache uint = 512
@@ -72,12 +65,4 @@ var FakeJobIDETHPrefixBin = []byte{
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 }
-var FakeJobIDETHPrefix = hex.EncodeToString(FakeJobIDETHPrefixBin)
 
-const EthereumInvalidExtraNonce = 0xffffffff
-const EthereumJobIDQueueSize = 256
-
-var EthereumPoolDiff1 = uint256.Int{
-	0xffffffffffffffff, 0xffffffffffffffff,
-	0xffffffffffffffff, 0xffffffffffffffff,
-}

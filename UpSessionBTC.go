@@ -228,14 +228,6 @@ func (up *UpSessionBTC) writeJSONRequest(jsonData *JSONRPCRequest) (int, error) 
 	return up.writeBytes(bytes)
 }
 
-// func (up *UpSessionBTC) writeExMessage(msg SerializableExMessage) (int, error) {
-// 	glog.Info(up.id, "writeExMessage: ", msg)
-// 	bytes := msg.Serialize()
-// 	if glog.V(10) && len(bytes) > 1 {
-// 		glog.Info(up.id, "writeExMessage: ", bytes[1], msg, " ", hex.EncodeToString(bytes))
-// 	}
-// 	return up.writeBytes(bytes)
-// }
 
 func (up *UpSessionBTC) writeBytes(bytes []byte) (int, error) {
 	glog.InfoDepth(12, "writeBytes before DeadLine: ", string(bytes))
@@ -601,7 +593,6 @@ func (up *UpSessionBTC) SendEvent(event interface{}) {
 func (up *UpSessionBTC) addDownSession(e EventAddDownSession) {
 	down := e.Session.(*DownSessionBTC)
 	up.downSessions[down.sessionID] = down
-	//up.registerWorker(down)
 
 	if up.rpcSetVersionMask != nil && down.versionMask != 0 {
 		down.SendEvent(EventSendBytes{up.rpcSetVersionMask})
@@ -621,23 +612,6 @@ func (up *UpSessionBTC) addDownSession(e EventAddDownSession) {
 	}
 }
 
-// func (up *UpSessionBTC) registerWorker(down *DownSessionBTC) {
-// 	msg := ExMessageRegisterWorker{down.sessionID, down.clientAgent, down.workerName}
-// 	_, err := up.writeExMessage(&msg)
-// 	if err != nil {
-// 		glog.Error(up.id, "failed to register worker to pool server: ", err.Error())
-// 		up.close()
-// 	}
-// }
-
-// func (up *UpSessionBTC) unregisterWorker(sessionID uint16) {
-// 	msg := ExMessageUnregisterWorker{sessionID}
-// 	_, err := up.writeExMessage(&msg)
-// 	if err != nil {
-// 		glog.Error(up.id, "failed to unregister worker from pool server: ", err.Error())
-// 		up.close()
-// 	}
-// }
 
 func (up *UpSessionBTC) handleMiningNotify(rpcData *JSONRPCLineBTC, jsonBytes []byte) {
 	job, err := NewStratumJobBTC(rpcData, up.sessionID)
