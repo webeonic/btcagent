@@ -460,7 +460,7 @@ func (down *DownSessionBTC) connBroken() {
 
 func (down *DownSessionBTC) sendBytes(e EventSendBytes) {
 	if glog.V(12) {
-		glog.Info(down.id, "sendBytes: down.clientConn address:",down.clientConn.RemoteAddr().String()," e.Content: ", string(e.Content))
+		glog.Info(down.id, "sendBytes: down.clientConn address:", down.clientConn.RemoteAddr().String(), " e.Content: ", string(e.Content))
 	}
 	_, err := down.clientConn.Write(e.Content)
 	if err != nil {

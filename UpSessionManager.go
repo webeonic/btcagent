@@ -19,7 +19,7 @@ type FakeUpSessionInfo struct {
 }
 
 type UpSessionManager struct {
-	id string // Connection identifier for printing logs
+	id         string // Connection identifier for printing logs
 	subAccount string
 	config     *Config
 	parent     *SessionManager
@@ -120,7 +120,7 @@ func (manager *UpSessionManager) upSessionReady(e EventUpSessionReady) {
 	info.upSession = e.Session
 	info.ready = true
 
-	// 从 FakeUpSession 拿回矿机
+	// Get the miner back from FakeUpSession
 	manager.fakeUpSession.upSession.SendEvent(EventTransferDownSessions{})
 }
 

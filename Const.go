@@ -1,9 +1,5 @@
 package main
 
-import (
-
-)
-
 // AuthorizeStat 认证状态
 type AuthorizeStat uint8
 
@@ -15,20 +11,19 @@ const (
 	StatExit
 )
 
-// Stratum协议类型
+// Stratum protocol type
 type StratumProtocol uint8
 
 const (
-	// 未知协议
+	// unknown protocol
 	ProtocolUnknown StratumProtocol = iota
-	// ETHProxy 协议
+	// ETHProxy protocol
 	ProtocolETHProxy
-	// NiceHash 的 EthereumStratum/1.0.0 协议
+	// NiceHash's EthereumStratum1.0.0 protocol
 	ProtocolEthereumStratum
-	// 传统 Stratum 协议
+	// Legacy Stratum Protocol
 	ProtocolLegacyStratum
 )
-
 
 const DownSessionChannelCache uint = 64
 const UpSessionChannelCache uint = 512
@@ -39,7 +34,7 @@ const UpSessionDialTimeoutSeconds Seconds = 15
 const UpSessionReadTimeoutSeconds Seconds = 60
 
 //btccom-agent/2.0.0-mu
-const UpSessionUserAgent = ""
+const UpSessionUserAgent = "oktapool-agent"
 
 const DefaultWorkerName = "__default__"
 const DefaultIpWorkerNameFormat = "{1}x{2}x{3}x{4}"
@@ -65,4 +60,3 @@ var FakeJobIDETHPrefixBin = []byte{
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 }
-

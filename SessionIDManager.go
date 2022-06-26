@@ -30,12 +30,12 @@ func NewSessionIDManager(maxSessionId uint16) (manager *SessionIDManager, err er
 	return
 }
 
-// isFull 判断会话ID是否已满（内部使用，不加锁）
+// isFull Determines whether the session ID is full (internal use, not locked)
 func (manager *SessionIDManager) isFullWithoutLock() bool {
 	return (manager.count > manager.maxSessionId)
 }
 
-// IsFull 判断会话ID是否已满
+// IsFull Determine if the session ID is full
 func (manager *SessionIDManager) IsFull() bool {
 	defer manager.lock.Unlock()
 	manager.lock.Lock()
@@ -76,7 +76,7 @@ func (manager *SessionIDManager) AllocSessionID() (sessionID uint16, err error) 
 	return
 }
 
-// FreeSessionID 释放调用者持有的会话ID
+// FreeSessionID Release the session ID held by the caller
 func (manager *SessionIDManager) FreeSessionID(sessionID uint16) {
 	defer manager.lock.Unlock()
 	manager.lock.Lock()

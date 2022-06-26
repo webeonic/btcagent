@@ -2,7 +2,7 @@ package main
 
 import "errors"
 
-// StratumError Stratum错误
+// StratumError Stratum error
 type StratumError struct {
 	// 错误号
 	ErrNo int
@@ -10,7 +10,7 @@ type StratumError struct {
 	ErrMsg string
 }
 
-// NewStratumError 新建一个StratumError
+// NewStratumError Create a new Stratum Error
 func NewStratumError(errNo int, errMsg string) *StratumError {
 	err := new(StratumError)
 	err.ErrNo = errNo
@@ -19,12 +19,12 @@ func NewStratumError(errNo int, errMsg string) *StratumError {
 	return err
 }
 
-// Error 实现StratumError的Error()接口以便其被当做error类型使用
+// Error Implements the Error() interface of Stratum Error so that it can be used as an error type
 func (err *StratumError) Error() string {
 	return err.ErrMsg
 }
 
-// ToJSONRPCArray 转换为JSONRPCArray
+// ToJSONRPCArray Convert to JSONRPC Array
 func (err *StratumError) ToJSONRPCArray(extData interface{}) interface{} {
 	if err == nil {
 		return nil
@@ -34,60 +34,60 @@ func (err *StratumError) ToJSONRPCArray(extData interface{}) interface{} {
 }
 
 var (
-	// ErrBufIOReadTimeout 从bufio.Reader中读取数据时超时
+	// ErrBufIOReadTimeout Timeout while reading data from bufio.Reader
 	ErrBufIOReadTimeout = errors.New("bufIO read timeout")
-	// ErrSessionIDFull SessionID已满（所有可用值均已分配）
+	// ErrSessionIDFull Session ID is full (all available values are assigned)
 	ErrSessionIDFull = errors.New("session id is full")
-	// ErrSessionIDOccupied SessionID已被占用（恢复SessionID时）
+	// ErrSessionIDOccupied The Session ID has been occupied (when restoring the Session ID)
 	ErrSessionIDOccupied = errors.New("session id has been occupied")
-	// ErrParseSubscribeResponseFailed 解析订阅响应失败
+	// ErrParseSubscribeResponseFailed Failed to parse subscription response
 	ErrParseSubscribeResponseFailed = errors.New("parse subscribe response failed")
-	// ErrSessionIDInconformity 返回的会话ID和当前保存的不匹配
+	// ErrSessionIDInconformity The returned session ID does not match the currently saved one
 	ErrSessionIDInconformity = errors.New("session id inconformity")
-	// ErrAuthorizeFailed 认证失败
+	// ErrAuthorizeFailed Authentication failed
 	ErrAuthorizeFailed = errors.New("authorize failed")
-	// ErrTooMuchPendingAutoRegReq 太多等待中的自动注册请求
+	// ErrTooMuchPendingAutoRegReq Too many pending auto-registration requests
 	ErrTooMuchPendingAutoRegReq = errors.New("too much pending auto reg request")
 )
 
 var (
-	// StratumErrJobNotFound 任务不存在
+	// StratumErrJobNotFound task does not exist
 	StratumErrJobNotFound = NewStratumError(21, "Job not found (=stale)")
-	// StratumErrNeedAuthorized 需要认证
+	// StratumErrNeedAuthorized Authentication required
 	StratumErrNeedAuthorized = NewStratumError(24, "Unauthorized worker")
-	// StratumErrNeedSubscribed 需要订阅
+	// StratumErrNeedSubscribed Subscription required
 	StratumErrNeedSubscribed = NewStratumError(25, "Not subscribed")
-	// StratumErrIllegalParams 参数非法
+	// StratumErrIllegalParams Illegal parameter
 	StratumErrIllegalParams = NewStratumError(27, "Illegal params")
-	// StratumErrTooFewParams 参数太少
+	// StratumErrTooFewParams too few parameters
 	StratumErrTooFewParams = NewStratumError(27, "Too few params")
-	// StratumErrDuplicateSubscribed 重复订阅
+	// StratumErrDuplicateSubscribed Repeat subscription
 	StratumErrDuplicateSubscribed = NewStratumError(102, "Duplicate Subscribed")
-	// StratumErrWorkerNameMustBeString 矿工名必须是字符串
+	// StratumErrWorkerNameMustBeString Miner name must be a string
 	StratumErrWorkerNameMustBeString = NewStratumError(104, "Worker Name Must be a String")
-	// StratumErrSubAccountNameEmpty 子账户名为空
+	// StratumErrSubAccountNameEmpty Sub account name is empty
 	StratumErrSubAccountNameEmpty = NewStratumError(105, "Sub-account Name Cannot be Empty")
 
-	// StratumErrStratumServerNotFound 找不到对应币种的Stratum Server
+	// StratumErrStratumServerNotFound The Stratum Server for the corresponding currency could not be found
 	StratumErrStratumServerNotFound = NewStratumError(301, "Stratum Server Not Found")
-	// StratumErrConnectStratumServerFailed 对应币种的Stratum Server连接失败
+	// StratumErrConnectStratumServerFailed The Stratum Server connection of the corresponding currency fails
 	StratumErrConnectStratumServerFailed = NewStratumError(302, "Connect Stratum Server Failed")
 
-	// StratumErrUnknownChainType 未知区块链类型
+	// StratumErrUnknownChainType Unknown blockchain type
 	StratumErrUnknownChainType = NewStratumError(500, "Unknown Chain Type")
 )
 
 var (
-	// ErrReadFailed IO读错误
+	// ErrReadFailed IO read error
 	ErrReadFailed = errors.New("read failed")
-	// ErrWriteFailed IO写错误
+	// ErrWriteFailed IO write error
 	ErrWriteFailed = errors.New("write failed")
-	// ErrInvalidReader 非法Reader
+	// ErrInvalidReader illegal reader
 	ErrInvalidReader = errors.New("invalid reader")
-	// ErrInvalidWritter 非法Writter
+	// ErrInvalidWritter Illegal Writer
 	ErrInvalidWritter = errors.New("invalid writter")
-	// ErrInvalidBuffer 非法Buffer
+	// ErrInvalidBuffer Illegal Buffer
 	ErrInvalidBuffer = errors.New("invalid buffer")
-	// ErrConnectionClosed 连接已关闭
+	// ErrConnectionClosed connection closed
 	ErrConnectionClosed = errors.New("connection closed")
 )
