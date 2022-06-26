@@ -228,9 +228,8 @@ func (up *UpSessionBTC) writeJSONRequest(jsonData *JSONRPCRequest) (int, error) 
 	return up.writeBytes(bytes)
 }
 
-
 func (up *UpSessionBTC) writeBytes(bytes []byte) (int, error) {
-	glog.InfoDepth(12, "writeBytes before DeadLine: ", string(bytes))
+	glog.Info("writeBytes before DeadLine: ", string(bytes))
 	up.setWriteDeadline()
 	return up.serverConn.Write(bytes)
 }
@@ -507,57 +506,9 @@ func (up *UpSessionBTC) handleResponse() {
 	up.readLoopRunning = true
 	for up.readLoopRunning {
 		up.setReadDeadline()
-		magicNum, err := up.serverReader.Peek(1)
-		if err != nil {
-			glog.Error(up.id, "failed to read pool server response: ", err.Error())
-			up.connBroken()
-			return
-		}
-		glog.Info("magicNum:", magicNum, "[0]:", magicNum[0])
-		if magicNum[0] == ExMessageMagicNumber {
-			//up.readExMessage()
-		} else {
-			up.readLine()
-		}
+		up.readLine()
 	}
 }
-
-// func (up *UpSessionBTC) readExMessage() {
-// 	// ex-message:
-// 	//   magic_number	uint8_t		magic number for Ex-Message, always 0x7F
-// 	//   type/cmd		uint8_t		message type
-// 	//   length			uint16_t	message length (include header self)
-// 	//   message_body	uint8_t[]	message body
-// 	message := new(ExMessage)
-// 	err := binary.Read(up.serverReader, binary.LittleEndian, &message.ExMessageHeader)
-// 	if err != nil {
-// 		glog.Error(up.id, "failed to read ex-message header from pool server: ", err.Error())
-// 		up.connBroken()
-// 		return
-// 	}
-// 	if message.Size < 4 {
-// 		glog.Warning(up.id, "broken ex-message header from pool server: ", message.ExMessageHeader)
-// 		up.connBroken()
-// 		return
-// 	}
-
-// 	size := message.Size - 4 // Len includes the length of the Header 4 bytes, so
-// 	if size > 0 {
-// 		message.Body = make([]byte, size)
-// 		_, err = io.ReadFull(up.serverReader, message.Body)
-// 		if err != nil {
-// 			glog.Error(up.id, "failed to read ex-message body from pool server: ", err.Error())
-// 			up.connBroken()
-// 			return
-// 		}
-// 	}
-
-// 	if glog.V(9) {
-// 		glog.Info(up.id, "readExMessage: ", message.ExMessageHeader.Type, " ", hex.EncodeToString(message.Body))
-// 	}
-// 	glog.Info("EventRecvExMessage{message}:", message)
-// 	up.SendEvent(EventRecvExMessage{message})
-// }
 
 func (up *UpSessionBTC) readLine() {
 	jsonBytes, err := up.serverReader.ReadBytes('\n')
@@ -612,7 +563,6 @@ func (up *UpSessionBTC) addDownSession(e EventAddDownSession) {
 	}
 }
 
-
 func (up *UpSessionBTC) handleMiningNotify(rpcData *JSONRPCLineBTC, jsonBytes []byte) {
 	job, err := NewStratumJobBTC(rpcData, up.sessionID)
 	if err != nil {
@@ -640,6 +590,7 @@ func (up *UpSessionBTC) recvJSONRPC(e EventRecvJSONRPCBTC) {
 	glog.Info("UpSessionRecvJSONRPC. RPCData: ", *e.RPCData, ", JSONBytes: ", string(jsonBytes))
 
 	if len(rpcData.Method) > 0 {
+		glog.Info("rpcData.Method: ", rpcData.Method)
 		switch rpcData.Method {
 		case "mining.set_version_mask":
 			up.handleSetVersionMask(rpcData, jsonBytes)
@@ -700,20 +651,13 @@ func (up *UpSessionBTC) handleSubmitShare(e EventSubmitShareBTC) {
 		return
 	}
 
-	// _, err := up.writeExMessage(e.Message)
+	if up.config.SubmitResponseFromServer && up.serverCapSubmitResponse {
+		up.submitIDs[up.submitIndex] = SubmitID{e.ID, e.Message.Base.SessionID}
+		up.submitIndex++
+	} else {
+		up.sendSubmitResponse(e.Message.Base.SessionID, e.ID, STATUS_ACCEPT)
+	}
 
-	// if up.config.SubmitResponseFromServer && up.serverCapSubmitResponse {
-	// 	up.submitIDs[up.submitIndex] = SubmitID{e.ID, e.Message.Base.SessionID}
-	// 	up.submitIndex++
-	// } else {
-	// 	up.sendSubmitResponse(e.Message.Base.SessionID, e.ID, STATUS_ACCEPT)
-	// }
-
-	// if err != nil {
-	// 	glog.Error(up.id, "failed to submit share: ", err.Error())
-	// 	up.close()
-	// 	return
-	// }
 }
 
 func (up *UpSessionBTC) sendSubmitResponse(sessionID uint16, id interface{}, status StratumStatus) {
@@ -726,62 +670,6 @@ func (up *UpSessionBTC) sendSubmitResponse(sessionID uint16, id interface{}, sta
 		return
 	}
 	go down.SendEvent(EventSubmitResponse{id, status})
-}
-
-func (up *UpSessionBTC) handleExMessageSubmitResponse(ex *ExMessage) {
-	if !up.config.SubmitResponseFromServer || !up.serverCapSubmitResponse {
-		glog.Error(up.id, "unexpected ex-message CMD_SUBMIT_RESPONSE from pool server")
-		return
-	}
-
-	var msg ExMessageSubmitResponse
-	err := msg.Unserialize(ex.Body)
-	if err != nil {
-		glog.Error(up.id, "failed to decode ex-message CMD_SUBMIT_RESPONSE: ", err.Error(), "; ", ex)
-		return
-	}
-
-	submitID, ok := up.submitIDs[msg.Index]
-	if !ok {
-		glog.Error(up.id, "cannot find submit id ", msg.Index, " in ex-message CMD_SUBMIT_RESPONSE: ", msg)
-		return
-	}
-	delete(up.submitIDs, msg.Index)
-
-	up.sendSubmitResponse(submitID.SessionID, submitID.ID, msg.Status)
-}
-
-func (up *UpSessionBTC) handleExMessageMiningSetDiff(ex *ExMessage) {
-	var msg ExMessageMiningSetDiff
-	err := msg.Unserialize(ex.Body)
-	if err != nil {
-		glog.Error(up.id, "failed to decode ex-message CMD_MINING_SET_DIFF: ", err.Error(), "; ", ex)
-		return
-	}
-
-	diff := uint64(1) << msg.Base.DiffExp
-
-	var request JSONRPCRequest
-	request.Method = "mining.set_difficulty"
-	request.SetParams(diff)
-	bytes, err := request.ToJSONBytesLine()
-	if err != nil {
-		glog.Error(up.id, "failed to convert mining.set_difficulty request to JSON: ", err.Error(), "; ", request)
-		return
-	}
-
-	e := EventSendBytes{bytes}
-	for _, sessionID := range msg.SessionIDs {
-		down := up.downSessions[sessionID]
-		if down != nil {
-			go down.SendEvent(e)
-		} else {
-			// The client has been disconnected, ignored
-			if glog.V(3) {
-				glog.Info(up.id, "cannot find down session: ", sessionID)
-			}
-		}
-	}
 }
 
 func (up *UpSessionBTC) downSessionBroken(e EventDownSessionBroken) {

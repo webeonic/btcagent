@@ -37,11 +37,6 @@ type EventRecvJSONRPCBTC struct {
 	JSONBytes []byte
 }
 
-type EventRecvJSONRPCETH struct {
-	RPCData   *JSONRPCLineETH
-	JSONBytes []byte
-}
-
 type EventSendBytes struct {
 	Content []byte
 }
@@ -57,11 +52,6 @@ type EventUpSessionBroken struct {
 type EventSubmitShareBTC struct {
 	ID      interface{}
 	Message *ExMessageSubmitShareBTC
-}
-
-type EventSubmitShareETH struct {
-	ID      interface{}
-	Message *ExMessageSubmitShareETH
 }
 
 type EventSubmitResponse struct {
@@ -90,7 +80,6 @@ type EventUpdateFakeJobBTC struct {
 	FakeJob *StratumJobBTC
 }
 
-
 type EventTransferDownSessions struct{}
 
 type EventSendFakeNotify struct{}
@@ -109,4 +98,3 @@ type EventSetDifficulty struct {
 type EventSetExtraNonce struct {
 	ExtraNonce uint32
 }
-

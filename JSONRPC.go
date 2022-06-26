@@ -26,20 +26,6 @@ type JSONRPCLineBTC struct {
 	Error  interface{}   `json:"error,omitempty"`
 }
 
-type JSONRPCLineETH struct {
-	ID      interface{}   `json:"id,omitempty"`
-	Method  string        `json:"method,omitempty"`
-	Params  []interface{} `json:"params,omitempty"`
-	Result  interface{}   `json:"result,omitempty"`
-	Error   interface{}   `json:"error,omitempty"`
-	Height  int           `json:"height,omitempty"`
-	Header  string        `json:"header,omitempty"`
-	BaseFee string        `json:"basefee,omitempty"`
-
-	// Worker: ETHProxy from ethminer may contains this field
-	Worker string `json:"worker,omitempty"`
-}
-
 // JSONRPC2Error error object of json-rpc 2.0
 type JSONRPC2Error struct {
 	Code    int         `json:"code"`
@@ -105,13 +91,7 @@ func NewJSONRPCLineBTC(rpcJSON []byte) (rpcData *JSONRPCLineBTC, err error) {
 	return
 }
 
-func NewJSONRPCLineETH(rpcJSON []byte) (rpcData *JSONRPCLineETH, err error) {
-	rpcData = new(JSONRPCLineETH)
-	err = json.Unmarshal(rpcJSON, &rpcData)
-	return
-}
-
-// NewJSONRPCRequest 解析 JSON RPC 请求字符串并创建 JSONRPCRequest 对象
+// NewJSONRPCRequest Parse the JSON RPC request string and create a JSONRPCRequest object
 func NewJSONRPCRequest(rpcJSON []byte) (rpcData *JSONRPCRequest, err error) {
 	rpcData = new(JSONRPCRequest)
 	err = json.Unmarshal(rpcJSON, &rpcData)

@@ -155,7 +155,7 @@ func (down *DownSessionBTC) stratumHandleRequest(request *JSONRPCLineBTC, reques
 }
 
 func (down *DownSessionBTC) parseMiningSubmit(request *JSONRPCLineBTC) (result interface{}, err *StratumError) {
-	glog.InfoDepth(12, "(down *DownSessionBTC) parseMiningSubmit. request: ", request)
+	glog.Info("(down *DownSessionBTC) parseMiningSubmit. request: ", request)
 	if down.stat != StatAuthorized {
 		err = StratumErrNeedAuthorized
 

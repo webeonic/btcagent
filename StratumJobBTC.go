@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/golang/glog"
 	"time"
 )
 
@@ -23,6 +24,7 @@ func NewStratumJobBTC(json *JSONRPCLineBTC, sessionID uint32) (job *StratumJobBT
 			[7] nTime. The current time. nTime rolling should be supported, but should not increase faster than actual time.
 			[8] Clean Jobs. If true, miners should abort their current work and immediately use the new job. If false, they can still use the current job, but should move to the new one after exhausting the current nonce range.
 	*/
+	glog.Info("JSON Notify:", json)
 	job = new(StratumJobBTC)
 	job.ID = json.ID
 	job.Method = json.Method
