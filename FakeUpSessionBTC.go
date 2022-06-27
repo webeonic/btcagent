@@ -14,7 +14,7 @@ type FakeUpSessionBTC struct {
 	fakeJob     *StratumJobBTC
 	exitChannel chan bool
 
-	// 用于统计断开连接的矿机数，并同步给 UpSessionManager
+	// Used to count the number of disconnected miners and synchronize to UpSessionManager
 	disconnectedMinerCounter int
 }
 

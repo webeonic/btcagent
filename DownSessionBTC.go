@@ -204,11 +204,11 @@ func (down *DownSessionBTC) parseMiningSubmit(request *JSONRPCLineBTC) (result i
 		err = StratumErrIllegalParams
 		return
 	}
-	// extraNonce, convErr := strconv.ParseUint(extraNonce2Hex, 16, 32)
-	// if convErr != nil {
-	// 	err = StratumErrIllegalParams
-	// 	return
-	// }
+	//extraNonce, convErr := strconv.ParseUint(extraNonce2Hex, 16, 32)
+	//if convErr != nil {
+	//	err = StratumErrIllegalParams
+	//	return
+	//}
 	//msg.Base.ExtraNonce2 = uint32(extraNonce)
 	msg.Base.ExtraNonce2 = extraNonce2Hex
 
